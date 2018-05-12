@@ -1,7 +1,13 @@
 #pragma once
 
-#include "Components.h"
+
+#ifdef __APPLE__
+#include "SDL2/SDL.h"
+#elif _WIN32
 #include "SDL.h"
+#endif
+
+#include "Components.h"
 #include "../TextureManager.h"
 #include "Animation.h"
 #include <map>

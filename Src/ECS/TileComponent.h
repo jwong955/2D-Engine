@@ -1,8 +1,12 @@
 #pragma once
 #include "ECS.h"
 #include "TransformComponent.h"
-#include "SDL.h"
 
+#ifdef __APPLE__
+#include "SDL2/SDL.h"
+#elif _WIN32
+#include "SDL.h"
+#endif
 class TileComponent : public Component {
 public:
 	

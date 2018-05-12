@@ -6,7 +6,7 @@
 #include "SDL2_image/SDL_image.h"
 #elif _WIN32
 #include "SDL.h"
-#include "SDL_image.h
+#include "SDL_image.h"
 #endif
 
 #include <iostream>
@@ -33,6 +33,7 @@ public:
 	static SDL_Event event;
 	static std::vector<ColliderComponent*> colliders;
 	static bool isRunning;
+	static SDL_Rect camera;
 private:
 	
 	int cnt = 0;

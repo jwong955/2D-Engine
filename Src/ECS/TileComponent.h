@@ -7,6 +7,7 @@
 #elif _WIN32
 #include "SDL.h"
 #endif
+
 class TileComponent : public Component {
 public:
 	

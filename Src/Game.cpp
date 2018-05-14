@@ -62,7 +62,7 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 
 	map = new Map();
 
-	Map::LoadMap("assets/map.map", 25, 20);
+	Map::LoadMap("assets/map.txt", 25, 20);
 
 	player.addComponent<TransformComponent>(4);
 	player.addComponent<SpriteComponent>("assets/player_anims.png", true);

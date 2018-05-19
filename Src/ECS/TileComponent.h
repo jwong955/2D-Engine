@@ -1,13 +1,14 @@
 #pragma once
 
-#include "ECS.h"
-#include "TransformComponent.h"
-
 #ifdef __APPLE__
 #include "SDL2/SDL.h"
 #elif _WIN32
 #include "SDL.h"
 #endif
+#include "ECS.h"
+
+#include "TransformComponent.h"
+#include "AssetManager.h"
 
 class TileComponent : public Component {
 public:
@@ -21,19 +22,20 @@ public:
 	~TileComponent(){
 		SDL_DestroyTexture(texture);
 	}
-	TileComponent(int srcX,int srcY, int xpos, int ypos, const char* path) {
-		texture = TextureManager::LoadTexture(path);
+    TileComponent(int srcX,int srcY, int xpos, int ypos, int tsize, int tscale, std::string id) {
+		
+        texture = Game::assets->GetTexture(id);
 
 		position.x = xpos;
 		position.y = ypos;
 
 		srcRect.x = srcX;
 		srcRect.y = srcY;
-		srcRect.w = srcRect.h = 32;
+		srcRect.w = srcRect.h = tsize;
 
 		destRect.x = xpos;
 		destRect.y = ypos;
-		destRect.w = destRect.h = 64;
+		destRect.w = destRect.h = tsize * tscale;
 	}
 
 	void update() override {

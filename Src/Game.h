@@ -12,7 +12,9 @@
 #include <iostream>
 #include <vector>
 
+class AssetManager;
 class ColliderComponent;
+
 
 class Game
 {
@@ -28,12 +30,19 @@ public:
 	void render();
 	void clean();
 
-	static void AddTile(int srcX,int srcY, int xpos, int ypos);
 	static SDL_Renderer* renderer;
 	static SDL_Event event;
-	static std::vector<ColliderComponent*> colliders;
 	static bool isRunning;
 	static SDL_Rect camera;
+    static AssetManager* assets;
+    
+    enum groupLabels : std::size_t {
+        groupMap,
+        groupPlayers,
+        groupColliders,
+        groupProjectiles,
+    };
+    
 private:
 	
 	int cnt = 0;

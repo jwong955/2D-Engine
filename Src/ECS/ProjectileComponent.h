@@ -1,6 +1,11 @@
+#pragma once
+
 #include "ECS.h"
 #include "Components.h"
 #include "Vector2D.h"
+
+#ifndef ProjectileComponent_h
+#define ProjectileComponent_h
 
 class ProjectileComponent : public Component {
 public:
@@ -40,3 +45,5 @@ private:
     int distance = 0;
     Vector2D velocity;
 };
+
+#endif

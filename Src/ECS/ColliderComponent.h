@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 
 #ifdef __APPLE__
 #include "SDL2/SDL.h"
@@ -9,7 +8,7 @@
 
 #include "TextureManager.h"
 #include "Components.h"
-
+#include <string>
 
 class ColliderComponent :public Component{
 public:

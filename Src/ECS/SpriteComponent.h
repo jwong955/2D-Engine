@@ -10,8 +10,13 @@
 #include "Components.h"
 #include "../TextureManager.h"
 #include "Animation.h"
+<<<<<<< HEAD
 #include <map>
 #include "AssetManager.h"
+=======
+#include <map>
+#include "..\AssetManager.h"
+>>>>>>> c5a5f1b2a1081d9080148e41390823e47b8e4659
 
 class SpriteComponent : public Component {
 private:
@@ -32,10 +37,17 @@ public:
 	SDL_RendererFlip spriteFlip = SDL_FLIP_NONE;
 
 	SpriteComponent() = default;
+<<<<<<< HEAD
     SpriteComponent(std::string id) {
 		setTex(id);
 	}
     SpriteComponent(std::string id, bool isAnimated) {
+=======
+	SpriteComponent(std::string id) {
+		setTex(id);
+	}
+	SpriteComponent(std::string id, bool isAnimated) {
+>>>>>>> c5a5f1b2a1081d9080148e41390823e47b8e4659
 		animated = isAnimated;
 
 		Animation idle = Animation(0, 3, 100);
@@ -51,8 +63,13 @@ public:
 		
 	}
 
+<<<<<<< HEAD
     void setTex(std::string id) {
 		texture = Game::assets->GetTexture(id);
+=======
+	void setTex(std::string id) {
+		texture = Game::assets->getTexture(id);
+>>>>>>> c5a5f1b2a1081d9080148e41390823e47b8e4659
 	}
 	void init() override {
 

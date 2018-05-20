@@ -103,20 +103,36 @@ void Game::handleEvents() {
 
 void Game::update() {
     
-    SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
-    Vector2D playerPos = player.getComponent<TransformComponent>().position;
+    SDL_Rect playerOldCol = player.getComponent<ColliderComponent>().collider;
+    Vector2D playerOldPos = player.getComponent<TransformComponent>().position;
     
     std::stringstream ss;
-    ss << "Player position" << playerPos;
+    ss << "Player position" << playerOldPos;
     label.getComponent<UILabel>().SetLabelText(ss.str(), "arial");
     
     manager.refresh();
     manager.update();
     
+    SDL_Rect playerNewCol = player.getComponent<ColliderComponent>().collider;
+    Vector2D playerNewPos = player.getComponent<TransformComponent>().position;
+
     for (auto& c : colliders) {
         SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
-        if (Collision::AABB(cCol, playerCol)) {
-            player.getComponent<TransformComponent>().position = playerPos;
+        if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
+            (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+            player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+        }
+        if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
+            (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+            player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+        }
+        if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
+            (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+            player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+        }
+        if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) &&
+            (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+            player.getComponent<TransformComponent>().position.y = playerOldPos.y;
         }
     }
     
@@ -153,13 +169,13 @@ void Game::render()
         t->draw();
     }
     for (auto& c : colliders) {
-        c->draw();
+        //c->draw();
     }
     for (auto& p : players) {
         p->draw();
     }
     for (auto& p : projectiles) {
-        p->draw();
+        //p->draw();
     }
     
     label.draw();

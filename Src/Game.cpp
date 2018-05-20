@@ -130,7 +130,7 @@ void Game::update() {
             (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
             player.getComponent<TransformComponent>().position.x = playerOldPos.x;
         }
-        if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) &&
+        if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
             (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
             player.getComponent<TransformComponent>().position.y = playerOldPos.y;
         }

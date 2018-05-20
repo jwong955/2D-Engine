@@ -9,5 +9,5 @@
 #include "ProjectileComponent.h"
 #include "UILabel.h"
 #include "TileComponent.h"
-#include "ProjectileComponent.h"
+//#include "ProjectileComponent.h"
 #include "UILabel.h"

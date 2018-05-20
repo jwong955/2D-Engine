@@ -69,12 +69,12 @@ public:
         srcRect.y = animIndex * transform->height;
         destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
         destRect.y = static_cast<int>(transform->position.y) - Game::camera.y;
-        destRect.w = transform->width*transform->scale;
-        destRect.h = transform->height*transform->scale;
+        destRect.w = transform->width * transform->scale;
+        destRect.h = transform->height * transform->scale;
     }
     
     void draw() override {
-        TextureManager::Draw(texture, srcRect, destRect,spriteFlip);
+        TextureManager::Draw(texture, srcRect, destRect, spriteFlip);
     }
     
     void play(const char* animName) {

@@ -40,7 +40,7 @@ public:
         groupMap,
         groupPlayers,
         groupColliders,
-        groupProjectiles,
+        //groupProjectiles,
         groupEnemies,
     };
     

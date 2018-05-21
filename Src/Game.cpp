@@ -9,8 +9,14 @@
 
 Map* map;
 Manager manager;
-double score=0;
-int health=100;
+
+//score and health
+double score = 0;
+int health = 100;
+
+//text colors
+SDL_Color white = { 255,255,255,255 };
+SDL_Color red = { 255,0,0,0 };
 
 SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
@@ -21,8 +27,14 @@ AssetManager* Game::assets = new AssetManager(&manager);
 
 bool Game::isRunning = false;
 
+//player and stats text
 auto& player(manager.addEntity());
 auto& pScore(manager.addEntity());
+auto& pHealth(manager.addEntity());
+auto& eScore(manager.addEntity());
+auto& escGame(manager.addEntity());
+
+//enemies
 auto& enemy1(manager.addEntity());
 auto& enemy2(manager.addEntity());
 auto& enemy3(manager.addEntity());
@@ -33,7 +45,12 @@ auto& enemy7(manager.addEntity());
 auto& enemy8(manager.addEntity());
 auto& enemy9(manager.addEntity());
 auto& enemy10(manager.addEntity());
-auto& pHealth(manager.addEntity());
+auto& enemy11(manager.addEntity());
+auto& enemy12(manager.addEntity());
+auto& enemy13(manager.addEntity());
+auto& enemy14(manager.addEntity());
+auto& enemy15(manager.addEntity());
+
 
 Game::Game()
 {}
@@ -43,101 +60,133 @@ Game::~Game()
 
 void Game::init(const char* title, int width, int height, bool fullscreen)
 {
-    int flags = 0;
-    
-    if (fullscreen)
-    {
-        flags = SDL_WINDOW_FULLSCREEN;
-    }
-    
-    if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
-    {
-        window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
-        renderer = SDL_CreateRenderer(window, -1, 0);
-        if (renderer)
-        {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        }
-        
-        isRunning = true;
-    }
-    
-    if (TTF_Init() == -1) {
-        std::cout << "Error : SDL_TTF" << std::endl;
-    }
-    
-    assets->AddTexture("terrain", "assets/terrain_ss.png");
-    assets->AddTexture("player", "assets/player_anims.png");
-    assets->AddTexture("enemy", "assets/enemy.png");
-    
-    assets->AddFont("arcade", "assets/ARCADECLASSIC.ttf", 30);
-    
-    map = new Map("terrain", 2, 32);
-    
-    map->LoadMap("assets/map.map", 25, 20);
-    
-    player.addComponent<TransformComponent>(800,640,32,32,4);
-    player.addComponent<SpriteComponent>("player", true);
-    player.addComponent<KeyboardController>();
-    player.addComponent<ColliderComponent>("player");
-    player.addGroup(groupPlayers);
-    
-    enemy1.addComponent<TransformComponent>(600, 600, 32, 32, 4);
-    enemy1.addComponent<SpriteComponent>("enemy", true);
-    enemy1.addComponent<ColliderComponent>("enemy");
-    enemy1.addGroup(groupEnemies);
-    
-    enemy2.addComponent<TransformComponent>(400, 600, 32, 32, 4);
-    enemy2.addComponent<SpriteComponent>("enemy", true);
-    enemy2.addComponent<ColliderComponent>("enemy");
-    enemy2.addGroup(groupEnemies);
-    
-    enemy3.addComponent<TransformComponent>(300,600, 32, 32, 4);
-    enemy3.addComponent<SpriteComponent>("enemy", true);
-    enemy3.addComponent<ColliderComponent>("enemy");
-    enemy3.addGroup(groupEnemies);
-    
-    enemy4.addComponent<TransformComponent>(1000,550, 32, 32, 4);
-    enemy4.addComponent<SpriteComponent>("enemy", true);
-    enemy4.addComponent<ColliderComponent>("enemy");
-    enemy4.addGroup(groupEnemies);
-    
-    enemy5.addComponent<TransformComponent>(900, 700, 32, 32, 4);
-    enemy5.addComponent<SpriteComponent>("enemy", true);
-    enemy5.addComponent<ColliderComponent>("enemy");
-    enemy5.addGroup(groupEnemies);
-    
-    enemy6.addComponent<TransformComponent>(100, 100, 32, 32, 4);
-    enemy6.addComponent<SpriteComponent>("enemy", true);
-    enemy6.addComponent<ColliderComponent>("enemy");
-    enemy6.addGroup(groupEnemies);
-    
-    enemy7.addComponent<TransformComponent>(100, 700, 32, 32, 4);
-    enemy7.addComponent<SpriteComponent>("enemy", true);
-    enemy7.addComponent<ColliderComponent>("enemy");
-    enemy7.addGroup(groupEnemies);
-    
-    enemy8.addComponent<TransformComponent>(200, 300, 32, 32, 4);
-    enemy8.addComponent<SpriteComponent>("enemy", true);
-    enemy8.addComponent<ColliderComponent>("enemy");
-    enemy8.addGroup(groupEnemies);
-    
-    enemy9.addComponent<TransformComponent>(1200, 600, 32, 32, 4);
-    enemy9.addComponent<SpriteComponent>("enemy", true);
-    enemy9.addComponent<ColliderComponent>("enemy");
-    enemy9.addGroup(groupEnemies);
-    
-    enemy10.addComponent<TransformComponent>(400, 300, 32, 32, 4);
-    enemy10.addComponent<SpriteComponent>("enemy", true);
-    enemy10.addComponent<ColliderComponent>("enemy");
-    enemy10.addGroup(groupEnemies);
-    
-    SDL_Color white = { 255,255,255,255 };
-    SDL_Color red = { 255,0,0,0 };
-    pScore.addComponent<UILabel>(10, 10, "Score", "arcade", white);
-    pHealth.addComponent<UILabel>(10, 50, "Health", "arcade", red);
+	int flags = 0;
+
+	if (fullscreen)
+	{
+		flags = SDL_WINDOW_FULLSCREEN;
+	}
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
+	{
+		window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+		renderer = SDL_CreateRenderer(window, -1, 0);
+		if (renderer)
+		{
+			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		}
+
+		isRunning = true;
+	}
+
+	if (TTF_Init() == -1) {
+		std::cout << "Error : SDL_TTF" << std::endl;
+	}
+
+	//add all the textures in
+	assets->AddTexture("terrain", "assets/terrain_ss.png");
+	assets->AddTexture("player", "assets/player_anims.png");
+	assets->AddTexture("enemy", "assets/enemy.png");
+	assets->AddTexture("end", "assets/end.png");
+
+	//get a font
+	assets->AddFont("arcade", "assets/ARCADECLASSIC.ttf", 30);
+
+	//create the map and open it
+	map = new Map("terrain", 2, 32);
+	map->LoadMap("assets/map.map", 25, 20);
+
+	//make player and give it all the functions
+	player.addComponent<TransformComponent>(860, 600, 32, 32, 4);
+	player.addComponent<SpriteComponent>("player", true);
+	player.addComponent<KeyboardController>();
+	player.addComponent<ColliderComponent>("player");
+	player.addGroup(groupPlayers);
+
+	//make a bunch of enemies that you run away from
+	enemy1.addComponent<TransformComponent>(300, 600, 32, 32, 4);
+	enemy1.addComponent<SpriteComponent>("enemy", true);
+	enemy1.addComponent<ColliderComponent>("enemy");
+	enemy1.addGroup(groupEnemies);
+
+	enemy2.addComponent<TransformComponent>(400, 400, 32, 32, 4);
+	enemy2.addComponent<SpriteComponent>("enemy", true);
+	enemy2.addComponent<ColliderComponent>("enemy");
+	enemy2.addGroup(groupEnemies);
+
+	enemy3.addComponent<TransformComponent>(300, 200, 32, 32, 4);
+	enemy3.addComponent<SpriteComponent>("enemy", true);
+	enemy3.addComponent<ColliderComponent>("enemy");
+	enemy3.addGroup(groupEnemies);
+
+	enemy4.addComponent<TransformComponent>(1000, 550, 32, 32, 4);
+	enemy4.addComponent<SpriteComponent>("enemy", true);
+	enemy4.addComponent<ColliderComponent>("enemy");
+	enemy4.addGroup(groupEnemies);
+
+	enemy5.addComponent<TransformComponent>(1200, 900, 32, 32, 4);
+	enemy5.addComponent<SpriteComponent>("enemy", true);
+	enemy5.addComponent<ColliderComponent>("enemy");
+	enemy5.addGroup(groupEnemies);
+
+	enemy6.addComponent<TransformComponent>(100, 100, 32, 32, 4);
+	enemy6.addComponent<SpriteComponent>("enemy", true);
+	enemy6.addComponent<ColliderComponent>("enemy");
+	enemy6.addGroup(groupEnemies);
+
+	enemy7.addComponent<TransformComponent>(100, 700, 32, 32, 4);
+	enemy7.addComponent<SpriteComponent>("enemy", true);
+	enemy7.addComponent<ColliderComponent>("enemy");
+	enemy7.addGroup(groupEnemies);
+
+	enemy8.addComponent<TransformComponent>(200, 300, 32, 32, 4);
+	enemy8.addComponent<SpriteComponent>("enemy", true);
+	enemy8.addComponent<ColliderComponent>("enemy");
+	enemy8.addGroup(groupEnemies);
+
+	enemy9.addComponent<TransformComponent>(1200, 600, 32, 32, 4);
+	enemy9.addComponent<SpriteComponent>("enemy", true);
+	enemy9.addComponent<ColliderComponent>("enemy");
+	enemy9.addGroup(groupEnemies);
+
+	enemy10.addComponent<TransformComponent>(400, 300, 32, 32, 4);
+	enemy10.addComponent<SpriteComponent>("enemy", true);
+	enemy10.addComponent<ColliderComponent>("enemy");
+	enemy10.addGroup(groupEnemies);
+
+	enemy11.addComponent<TransformComponent>(300, 350, 32, 32, 4);
+	enemy11.addComponent<SpriteComponent>("enemy", true);
+	enemy11.addComponent<ColliderComponent>("enemy");
+	enemy11.addGroup(groupEnemies);
+
+	enemy12.addComponent<TransformComponent>(10, 1200, 32, 32, 4);
+	enemy12.addComponent<SpriteComponent>("enemy", true);
+	enemy12.addComponent<ColliderComponent>("enemy");
+	enemy12.addGroup(groupEnemies);
+
+	enemy13.addComponent<TransformComponent>(400, 100, 32, 32, 4);
+	enemy13.addComponent<SpriteComponent>("enemy", true);
+	enemy13.addComponent<ColliderComponent>("enemy");
+	enemy13.addGroup(groupEnemies);
+
+	enemy14.addComponent<TransformComponent>(1000, 1000, 32, 32, 4);
+	enemy14.addComponent<SpriteComponent>("enemy", true);
+	enemy14.addComponent<ColliderComponent>("enemy");
+	enemy14.addGroup(groupEnemies);
+
+	enemy15.addComponent<TransformComponent>(100, 100, 32, 32, 4);
+	enemy15.addComponent<SpriteComponent>("enemy", true);
+	enemy15.addComponent<ColliderComponent>("enemy");
+	enemy15.addGroup(groupEnemies);
+
+	//set up where the score and health text will be
+	pScore.addComponent<UILabel>(10, 10, "Score", "arcade", white);
+	pHealth.addComponent<UILabel>(10, 50, "Health", "arcade", red);
+	eScore.addComponent<UILabel>(275, 250, "End Score", "arcade", white);
+	escGame.addComponent<UILabel>(150, 350, "Esc Game", "arcade", white);
 }
 
+//put everything into groups
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& colliders(manager.getGroup(Game::groupColliders));
@@ -145,119 +194,162 @@ auto& enemies(manager.getGroup(Game::groupEnemies));
 
 void Game::handleEvents()
 {
-    SDL_PollEvent(&event);
-    
-    switch (event.type)
-    {
-        case SDL_QUIT :
-            isRunning = false;
-            break;
-        default:
-            break;
-    }
+	SDL_PollEvent(&event);
+
+	switch (event.type)
+	{
+	case SDL_QUIT:
+		isRunning = false;
+		break;
+	default:
+		break;
+	}
 }
 
 void Game::update()
 {
-    SDL_Rect playerOldCol = player.getComponent <ColliderComponent>().collider;
-    Vector2D playerOldPos = player.getComponent<TransformComponent>().position;
-    int tempScore = score;
-    
-    std::stringstream sc;
-    sc << "Score : " << tempScore;
-    pScore.getComponent<UILabel>().SetLabelText(sc.str(), "arcade");
-    score += .05;
-    
-    std::stringstream hp;
-    hp << "Health : " << health;
-    pHealth.getComponent<UILabel>().SetLabelText(hp.str(), "arcade");
-    
-    manager.refresh();
-    manager.update();
-    
-    SDL_Rect playerNewCol = player.getComponent<ColliderComponent>().collider;
-    Vector2D playerNewPos = player.getComponent<TransformComponent>().position;
-    
-    for (auto& c : colliders) {
-        SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
-        if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
-            (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-            player.getComponent<TransformComponent>().position.x = playerOldPos.x;
-        }
-        if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
-            (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-            player.getComponent<TransformComponent>().position.y = playerOldPos.y;
-        }
-        if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
-            (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-            player.getComponent<TransformComponent>().position.x = playerOldPos.x;
-        }
-        if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
-            (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-            player.getComponent<TransformComponent>().position.y = playerOldPos.y;
-        }
-    }
-    
-    for (auto& e : enemies) {
-        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, e->getComponent<ColliderComponent>().collider)) {
-            std::cout << "Hit enemy" << std::endl;
-            player.getComponent<TransformComponent>().velocity = player.getComponent<TransformComponent>().velocity * -1;
-            player.getComponent<KeyboardController>().stun = 3;
-            e->destroy();
-            health -= 30;
-        }
-        if (player.getComponent<TransformComponent>().position.x > e->getComponent<TransformComponent>().position.x) {
-            e->getComponent<TransformComponent>().position.x += 2;
-        }
-        if(player.getComponent<TransformComponent>().position.x < e->getComponent<TransformComponent>().position.x) {
-            e->getComponent<TransformComponent>().position.x -= 2;
-        }
-        if (player.getComponent<TransformComponent>().position.y > e->getComponent<TransformComponent>().position.y) {
-            e->getComponent<TransformComponent>().position.y += 2;
-        }
-        if (player.getComponent<TransformComponent>().position.y < e->getComponent<TransformComponent>().position.y) {
-            e->getComponent<TransformComponent>().position.y -= 2;
-        }
-    }
-    camera.x = player.getComponent<TransformComponent>().position.x - 400;
-    camera.y = player.getComponent<TransformComponent>().position.y - 320;
-    
-    if (camera.x < 0) {
-        camera.x = 0;
-    }
-    if (camera.y < 0) {
-        camera.y = 0;
-    }
-    if (camera.x > camera.w) {
-        camera.x = camera.w;
-    }
-    if (camera.y > camera.h) {
-        camera.y = camera.h;
-    }
+	SDL_Rect playerOldCol = player.getComponent <ColliderComponent>().collider;
+	Vector2D playerOldPos = player.getComponent<TransformComponent>().position;
+	int tempScore = score;
+
+	//basically ends the game
+	if (health <= 0) {
+		for (auto& e : enemies) 
+			e->destroy();
+		for (auto& c : colliders)
+			c->destroy();
+		map = new Map("end", 3, 32);
+		map->LoadMap("assets/end.txt", 25, 20);
+		std::stringstream end;
+		end << "Ending  Score :    " << tempScore;
+		eScore.getComponent<UILabel>().SetLabelText(end.str(), "arcade");
+
+		std::stringstream esc;
+		esc << "Please  press  'esc'  to  leave  the  game";
+		escGame.getComponent<UILabel>().SetLabelText(esc.str(), "arcade");
+	}
+	else {
+		std::stringstream sc;
+		sc << "Score : " << tempScore;
+		pScore.getComponent<UILabel>().SetLabelText(sc.str(), "arcade");
+		score += .05;
+
+		std::stringstream hp;
+		hp << "Health : " << health;
+		pHealth.getComponent<UILabel>().SetLabelText(hp.str(), "arcade");
+	}
+		manager.refresh();
+		manager.update();
+		SDL_Rect playerNewCol = player.getComponent<ColliderComponent>().collider;
+		Vector2D playerNewPos = player.getComponent<TransformComponent>().position;
+
+		for (auto& c : colliders) {
+			SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+			if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
+				(playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+				player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+			}
+			if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
+				(playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+				player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+			}
+			if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
+				(playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+				player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+			}
+			if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
+				(playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+				player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+			}
+		}
+
+		//makes enemies "explode" when they hit the player and doesn't let them create one super zombie thing. Makes them spread apart
+		for (auto& e : enemies) {
+			if (Collision::AABB(player.getComponent<ColliderComponent>().collider, e->getComponent<ColliderComponent>().collider)) {
+				player.getComponent<TransformComponent>().velocity = player.getComponent<TransformComponent>().velocity * -1;
+				player.getComponent<KeyboardController>().stun = 3;
+				e->destroy();
+				health -= 30;
+			}
+			for (auto& contact : enemies) {
+				if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
+					e->getComponent<TransformComponent>().position.x += 300;
+					contact->getComponent<TransformComponent>().position.x -= 300;
+					e->getComponent<TransformComponent>().position.y += 300;
+					contact->getComponent<TransformComponent>().position.y -= 300;
+				}
+			}
+			//AI of how the enemies move to the player
+			if (player.getComponent<TransformComponent>().position.x > e->getComponent<TransformComponent>().position.x) {
+				e->getComponent<TransformComponent>().position.x += 2;
+				e->getComponent<SpriteComponent>().play("Walk");
+				e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_NONE;
+			}
+			if (player.getComponent<TransformComponent>().position.x < e->getComponent<TransformComponent>().position.x) {
+				e->getComponent<TransformComponent>().position.x -= 2;
+				e->getComponent<SpriteComponent>().play("Walk");
+				e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_HORIZONTAL;
+			}
+			if (player.getComponent<TransformComponent>().position.y > e->getComponent<TransformComponent>().position.y) {
+				e->getComponent<TransformComponent>().position.y += 2;
+				e->getComponent<SpriteComponent>().play("Walk");
+			}
+			if (player.getComponent<TransformComponent>().position.y < e->getComponent<TransformComponent>().position.y) {
+				e->getComponent<TransformComponent>().position.y -= 2;
+				e->getComponent<SpriteComponent>().play("Walk");
+			}
+		}
+		if (health > 0) {
+			camera.x = player.getComponent<TransformComponent>().position.x - 400;
+			camera.y = player.getComponent<TransformComponent>().position.y - 320;
+
+			if (camera.x < 0) {
+				camera.x = 0;
+			}
+			if (camera.y < 0) {
+				camera.y = 0;
+			}
+			if (camera.x > camera.w) {
+				camera.x = camera.w;
+			}
+			if (camera.y > camera.h) {
+				camera.y = camera.h;
+			}
+		}
 }
 
-
+//draws all everything
 void Game::render()
 {
-    SDL_RenderClear(renderer);
-    for (auto& t : tiles) {
-        t->draw();
-    }
-    for (auto& p : players) {
-        p->draw();
-    }
-    for (auto& e : enemies) {
-        e->draw();
-    }
-    pScore.draw();
-    pHealth.draw();
-    SDL_RenderPresent(renderer);
+	SDL_RenderClear(renderer);
+	for (auto& t : tiles) {
+		t->draw();
+	}
+	if (health > 0) {
+		for (auto& p : players) {
+			p->draw();
+		}
+	}
+	for (auto& e : enemies) {
+		e->draw();
+	}
+	if (health > 0) {
+		pScore.draw();
+		pHealth.draw();
+	}
+	else {
+		eScore.draw();
+		escGame.draw();
+	}
+	SDL_RenderPresent(renderer);
 }
 
+//deletes everything
 void Game::clean()
 {
-    SDL_DestroyWindow(window);
-    SDL_DestroyRenderer(renderer);
-    SDL_Quit();
+	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(renderer);
+	SDL_Quit();
 }
+
 

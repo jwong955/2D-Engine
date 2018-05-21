@@ -38,12 +38,11 @@ public:
 		groupMap,
 		groupPlayers,
 		groupColliders,
-		groupProjectiles,
 		groupEnemies
 	};
 
 private:
-	
+
 	int cnt = 0;
 	SDL_Window *window;
 };

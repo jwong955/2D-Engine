@@ -1,24 +1,30 @@
 #include "Collision.h"
-#include "ECS/ColliderComponent.h"
+#include "ECS\ColliderComponent.h"
 
-bool Collision::AABB(const SDL_Rect& rectA, const SDL_Rect& rectB) {
+bool Collision::AABB(const SDL_Rect& recA, const SDL_Rect& recB)
+{
 	if (
-		rectA.x + rectA.w >= rectB.x &&
-		rectB.x + rectB.w >= rectA.x &&
-		rectA.y + rectA.h >= rectB.y &&
-		rectB.y + rectB.h >= rectA.y
-		) {
+		recA.x + recA.w >= recB.x + 100 &&
+		recB.x + recB.w >= recA.x + 100 &&
+		recA.y + recA.h >= recB.y + 50 &&
+		recB.y + recB.h >= recA.y + 50
+		)
+	{
 		return true;
 	}
+
 	return false;
 }
 
-bool Collision::AABB(const ColliderComponent& colA, const ColliderComponent& colB) {
-	if (AABB(colA.collider, colB.collider)) {
-		//std::cout << colA.tag << "hit: " << colB.tag << std::endl;
+bool Collision::AABB(const ColliderComponent& colA, const ColliderComponent& colB)
+{
+	if (AABB(colA.collider, colB.collider))
+	{
+		//std::cout << colA.tag << " hit: " << colB.tag << std::endl;
 		return true;
 	}
-	else {
+	else
+	{
 		return false;
 	}
 }

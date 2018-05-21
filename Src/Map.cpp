@@ -3,6 +3,7 @@
 #include <fstream>
 #include "ECS/ECS.h"
 #include "ECS/Components.h"
+#include <cctype>
 
 extern Manager manager;
 

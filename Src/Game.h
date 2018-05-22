@@ -21,20 +21,22 @@ public:
 	Game();
 	~Game();
 
-	void init(const char* title, int width, int height, bool fullscreen);
+	void init(const char* title, int width, int height, bool fullscreen); // Initializes all the important stuff you see.
+    // ^ loads graphics and fonts into the game, initializes player, loads and initializes map, initialize enemies,
+    // ^ assign all entities their proper components, etc.
 
 	void handleEvents();
 	void update();
 	bool running() { return isRunning; }
 	void render();
-	void clean();
+	void clean(); // Handles SDL-related cleanup. 
 
 	static SDL_Renderer* renderer;
 	static SDL_Event event;
 	static bool isRunning;
 	static SDL_Rect camera;
 	static AssetManager* assets;
-	enum groupLabels : std::size_t {
+	enum groupLabels : std::size_t { // Public groups are used by the manager
 		groupMap,
 		groupPlayers,
 		groupColliders,

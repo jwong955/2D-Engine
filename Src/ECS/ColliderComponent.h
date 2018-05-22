@@ -10,7 +10,7 @@
 #include "Components.h"
 #include <string>
 
-class ColliderComponent :public Component{
+class ColliderComponent : public Component{
 public:
 
 	SDL_Rect collider;
@@ -38,7 +38,7 @@ public:
 		}
 		transform = &entity->getComponent<TransformComponent>();
         
-        //tex = TextureManager::LoadTexture("assets/ColTex.png");
+        //tex = TextureManager::LoadTexture("assets/ColTex.png"); // was a temp wall indicator
         srcR = { 0, 0, 32, 32};
         destR = { collider.x, collider.y, collider.w, collider.h };
         

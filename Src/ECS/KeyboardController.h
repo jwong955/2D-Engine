@@ -4,7 +4,7 @@
 #include "ECS.h"
 #include "Components.h"
 
-class KeyboardController :public Component {
+class KeyboardController : public Component {
 public:
     bool up = 0;
     bool down = 0;

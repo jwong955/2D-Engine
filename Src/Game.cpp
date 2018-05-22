@@ -52,13 +52,15 @@ auto& enemy14(manager.addEntity());
 auto& enemy15(manager.addEntity());
 
 
+// Up until this point it just initializes a bunch of important crap. (enemies, player, manager, some global colors, etc.)
+
 Game::Game()
 {}
 
 Game::~Game()
 {}
 
-void Game::init(const char* title, int width, int height, bool fullscreen)
+void Game::init(const char* title, int width, int height, bool fullscreen) //
 {
 	int flags = 0;
 
@@ -95,14 +97,27 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 	//create the map and open it
 	map = new Map("terrain", 2, 32);
 	map->LoadMap("assets/map.map", 25, 20);
+    delete map;
 
 	//make player and give it all the functions
-	player.addComponent<TransformComponent>(860, 600, 32, 32, 4);
-	player.addComponent<SpriteComponent>("player", true);
-	player.addComponent<KeyboardController>();
-	player.addComponent<ColliderComponent>("player");
-	player.addGroup(groupPlayers);
+    
+	player.addComponent<TransformComponent>(860, 600, 32, 32, 4); // (x, y, width, height, scale)
+    // TransformComponent holds all position/velocity/image-scale variables. Important for anything graphic and moving.
+	
+    player.addComponent<SpriteComponent>("player", true); // (sprite-id, animatedTrueFalse)
+    // SpriteComponent is responsible for animation and actually drawing the image to our render (its draw function is called via the game.render() -> manager.draw() -> entity.draw() -> SpriteComponent.draw()).
+	
+    player.addComponent<KeyboardController>(); // (no args)
+    // KeyboardController in another component that simply takes in keyboard input by SDL commands to make things happen. Likely that only the player will have this component.
+	
+    player.addComponent<ColliderComponent>("player"); // (classifier)
+    // ColliderComponent essentially gives the object a "collision box" per its sprite and classifier.
+	
+    player.addGroup(groupPlayers); // (enumerator)
+    // This is not a component. addGroup assigns the entity (player) to the enumerator group 'groupPlayers' so the manager object may use its 2-dimensional pointer to cycle through all entities classified within its own group.
 
+    
+    
 	//make a bunch of enemies that you run away from
 	enemy1.addComponent<TransformComponent>(300, 600, 32, 32, 4);
 	enemy1.addComponent<SpriteComponent>("enemy", true);
@@ -186,13 +201,14 @@ void Game::init(const char* title, int width, int height, bool fullscreen)
 	escGame.addComponent<UILabel>(150, 350, "Esc Game", "arcade", white);
 }
 
-//put everything into groups
+// Returns the refrences to the vector pointer to each group. i.e. 'tiles' references to the manager's vector of every tile in the map.
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& colliders(manager.getGroup(Game::groupColliders));
 auto& enemies(manager.getGroup(Game::groupEnemies));
+// GAME:: IDENTIFIER NECESSARY BECAUSE OUTSIDE OF { GAME SCOPE }.
 
-void Game::handleEvents()
+void Game::handleEvents() // Literally just handles the event of SDL_QUIT.
 {
 	SDL_PollEvent(&event);
 
@@ -206,27 +222,30 @@ void Game::handleEvents()
 	}
 }
 
-void Game::update()
-{
-	SDL_Rect playerOldCol = player.getComponent <ColliderComponent>().collider;
-	Vector2D playerOldPos = player.getComponent<TransformComponent>().position;
+void Game::update() {// Updates all entities and interaction among them.
+    
 	int tempScore = score;
 
 	//basically ends the game
 	if (health <= 0) {
-		for (auto& e : enemies) 
+        for (auto& e : enemies) {
 			e->destroy();
-		for (auto& c : colliders)
+        }
+        for (auto& c : colliders){
 			c->destroy();
-		map = new Map("end", 3, 32);
+        }
+		
+        map = new Map("end", 3, 32); // Goes to new map
 		map->LoadMap("assets/end.txt", 25, 20);
+        delete map;
+        
 		std::stringstream end;
 		end << "Ending  Score :    " << tempScore;
 		eScore.getComponent<UILabel>().SetLabelText(end.str(), "arcade");
 
-		std::stringstream esc;
-		esc << "Please  press  'esc'  to  leave  the  game";
-		escGame.getComponent<UILabel>().SetLabelText(esc.str(), "arcade");
+		std::string esc;
+		esc = "Please  press  'esc'  to  leave  the  game";
+		escGame.getComponent<UILabel>().SetLabelText(esc, "arcade");
 	}
 	else {
 		std::stringstream sc;
@@ -238,94 +257,103 @@ void Game::update()
 		hp << "Health : " << health;
 		pHealth.getComponent<UILabel>().SetLabelText(hp.str(), "arcade");
 	}
-		manager.refresh();
-		manager.update();
-		SDL_Rect playerNewCol = player.getComponent<ColliderComponent>().collider;
-		Vector2D playerNewPos = player.getComponent<TransformComponent>().position;
+    
+    SDL_Rect playerOldCol = player.getComponent <ColliderComponent>().collider;
+    Vector2D playerOldPos = player.getComponent<TransformComponent>().position;
+    
+    manager.refresh(); // Removes any entities that are not active (by checking if isActive == true).
+    manager.update(); // Updates each component of every entity within the manager's pointer containers for each group.
+    
+    SDL_Rect playerNewCol = player.getComponent<ColliderComponent>().collider;
+    Vector2D playerNewPos = player.getComponent<TransformComponent>().position;
 
-		for (auto& c : colliders) {
-			SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
-			if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
-				(playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-				player.getComponent<TransformComponent>().position.x = playerOldPos.x;
-			}
-			if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
-				(playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-				player.getComponent<TransformComponent>().position.y = playerOldPos.y;
-			}
-			if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
-				(playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-				player.getComponent<TransformComponent>().position.x = playerOldPos.x;
-			}
-			if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
-				(playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-				player.getComponent<TransformComponent>().position.y = playerOldPos.y;
-			}
-		}
+    for (auto& c : colliders) { // EDIT THIS: make it only check colliders within the screen view.
+        
+        if (true) { // Precisely here.
+            
+            SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+            if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
+                (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+                player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+            }
+            if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
+                (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+                player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+            }
+            if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
+                (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
+                player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+            }
+            if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
+                (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
+                player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+            }
+        }
+    }
 
-		//makes enemies "explode" when they hit the player and doesn't let them create one super zombie thing. Makes them spread apart
-		for (auto& e : enemies) {
-			if (Collision::AABB(player.getComponent<ColliderComponent>().collider, e->getComponent<ColliderComponent>().collider)) {
-				player.getComponent<TransformComponent>().velocity = player.getComponent<TransformComponent>().velocity * -1;
-				player.getComponent<KeyboardController>().stun = 3;
-				e->destroy();
-				health -= 30;
-			}
-			for (auto& contact : enemies) {
-				if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
-					e->getComponent<TransformComponent>().position.x += 300;
-					contact->getComponent<TransformComponent>().position.x -= 300;
-					e->getComponent<TransformComponent>().position.y += 300;
-					contact->getComponent<TransformComponent>().position.y -= 300;
-				}
-			}
-			//AI of how the enemies move to the player
-			if (player.getComponent<TransformComponent>().position.x > e->getComponent<TransformComponent>().position.x) {
-				e->getComponent<TransformComponent>().position.x += 2;
-				e->getComponent<SpriteComponent>().play("Walk");
-				e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_NONE;
-			}
-			if (player.getComponent<TransformComponent>().position.x < e->getComponent<TransformComponent>().position.x) {
-				e->getComponent<TransformComponent>().position.x -= 2;
-				e->getComponent<SpriteComponent>().play("Walk");
-				e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_HORIZONTAL;
-			}
-			if (player.getComponent<TransformComponent>().position.y > e->getComponent<TransformComponent>().position.y) {
-				e->getComponent<TransformComponent>().position.y += 2;
-				e->getComponent<SpriteComponent>().play("Walk");
-			}
-			if (player.getComponent<TransformComponent>().position.y < e->getComponent<TransformComponent>().position.y) {
-				e->getComponent<TransformComponent>().position.y -= 2;
-				e->getComponent<SpriteComponent>().play("Walk");
-			}
-		}
-		if (health > 0) {
-			camera.x = player.getComponent<TransformComponent>().position.x - 400;
-			camera.y = player.getComponent<TransformComponent>().position.y - 320;
+    //makes enemies "explode" when they hit the player and doesn't let them create one super zombie thing. Makes them spread apart
+    for (auto& e : enemies) {
+        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, e->getComponent<ColliderComponent>().collider)) {
+            player.getComponent<TransformComponent>().velocity = player.getComponent<TransformComponent>().velocity * -1;
+            player.getComponent<KeyboardController>().stun = 3;
+            e->destroy();
+            health -= 30;
+        }
+        for (auto& contact : enemies) {
+            if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
+                e->getComponent<TransformComponent>().position.x += 300;
+                contact->getComponent<TransformComponent>().position.x -= 300;
+                e->getComponent<TransformComponent>().position.y += 300;
+                contact->getComponent<TransformComponent>().position.y -= 300;
+            }
+        }
+        //AI of how the enemies move to the player
+        if (player.getComponent<TransformComponent>().position.x > e->getComponent<TransformComponent>().position.x) {
+            e->getComponent<TransformComponent>().position.x += 2;
+            e->getComponent<SpriteComponent>().play("Walk");
+            e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_NONE;
+        }
+        if (player.getComponent<TransformComponent>().position.x < e->getComponent<TransformComponent>().position.x) {
+            e->getComponent<TransformComponent>().position.x -= 2;
+            e->getComponent<SpriteComponent>().play("Walk");
+            e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_HORIZONTAL;
+        }
+        if (player.getComponent<TransformComponent>().position.y > e->getComponent<TransformComponent>().position.y) {
+            e->getComponent<TransformComponent>().position.y += 2;
+            e->getComponent<SpriteComponent>().play("Walk");
+        }
+        if (player.getComponent<TransformComponent>().position.y < e->getComponent<TransformComponent>().position.y) {
+            e->getComponent<TransformComponent>().position.y -= 2;
+            e->getComponent<SpriteComponent>().play("Walk");
+        }
+    }
+    if (health > 0) {
+        camera.x = player.getComponent<TransformComponent>().position.x - 400;
+        camera.y = player.getComponent<TransformComponent>().position.y - 320;
 
-			if (camera.x < 0) {
-				camera.x = 0;
-			}
-			if (camera.y < 0) {
-				camera.y = 0;
-			}
-			if (camera.x > camera.w) {
-				camera.x = camera.w;
-			}
-			if (camera.y > camera.h) {
-				camera.y = camera.h;
-			}
-		}
+        if (camera.x < 0) {
+            camera.x = 0;
+        }
+        if (camera.y < 0) {
+            camera.y = 0;
+        }
+        if (camera.x > camera.w) {
+            camera.x = camera.w;
+        }
+        if (camera.y > camera.h) {
+            camera.y = camera.h;
+        }
+    }
 }
 
-//draws all everything
+// Draws everything to our renderer.
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 	for (auto& t : tiles) {
 		t->draw();
 	}
-	if (health > 0) {
+	if (health > 0) { // Only draw player if still alive. This is a temporary work-around to the fact that the player is our only source of keyboard input as of now.
 		for (auto& p : players) {
 			p->draw();
 		}

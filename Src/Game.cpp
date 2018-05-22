@@ -274,19 +274,19 @@ void Game::update() {// Updates all entities and interaction among them.
             SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
             if ((playerNewPos.x <= cCol.x + cCol.w + 3) && !(playerOldPos.x <= cCol.x + cCol.w) && // Left-collision
                 (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-                player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+                playerOldPos.x = playerOldPos.x;
             }
             if ((playerNewPos.y <= cCol.y + cCol.h + 3) && !(playerOldPos.y <= cCol.y + cCol.h) && // Top-collision
                 (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-                player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+                playerOldPos.y = playerOldPos.y;
             }
             if ((playerNewPos.x + playerNewCol.w + 3 >= cCol.x) && !(playerOldPos.x + playerOldCol.w >= cCol.x) && // Right-collision
                 (playerNewPos.y >= cCol.y) && (playerNewPos.y <= cCol.y + cCol.h)) {
-                player.getComponent<TransformComponent>().position.x = playerOldPos.x;
+                playerOldPos.x = playerOldPos.x;
             }
             if ((playerNewPos.y + playerNewCol.h + 3 >= cCol.y) && !(playerOldPos.y + playerOldCol.h >= cCol.y) && //Bottom-collision
                 (playerNewPos.x >= cCol.x) && (playerNewPos.x <= cCol.x + cCol.w)) {
-                player.getComponent<TransformComponent>().position.y = playerOldPos.y;
+                playerOldPos.y = playerOldPos.y;
             }
         }
     }
@@ -299,37 +299,40 @@ void Game::update() {// Updates all entities and interaction among them.
             e->destroy();
             health -= 30;
         }
-        for (auto& contact : enemies) {
-            if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
-                e->getComponent<TransformComponent>().position.x += 300;
-                contact->getComponent<TransformComponent>().position.x -= 300;
-                e->getComponent<TransformComponent>().position.y += 300;
-                contact->getComponent<TransformComponent>().position.y -= 300;
-            }
+    for (auto& contact : enemies) {
+        if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
+            e->getComponent<TransformComponent>().position.x += 300;
+            contact->getComponent<TransformComponent>().position.x -= 300;
+            e->getComponent<TransformComponent>().position.y += 300;
+            contact->getComponent<TransformComponent>().position.y -= 300;
         }
-        //AI of how the enemies move to the player
-        if (player.getComponent<TransformComponent>().position.x > e->getComponent<TransformComponent>().position.x) {
+    }
+        
+        // AI of how the enemies move to the player
+        // Note: should be turned into an PathfindingComponent in the future.
+        if (playerOldPos.x > e->getComponent<TransformComponent>().position.x) {
             e->getComponent<TransformComponent>().position.x += 2;
             e->getComponent<SpriteComponent>().play("Walk");
             e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_NONE;
         }
-        if (player.getComponent<TransformComponent>().position.x < e->getComponent<TransformComponent>().position.x) {
+        if (playerOldPos.x < e->getComponent<TransformComponent>().position.x) {
             e->getComponent<TransformComponent>().position.x -= 2;
             e->getComponent<SpriteComponent>().play("Walk");
             e->getComponent<SpriteComponent>().spriteFlip = SDL_FLIP_HORIZONTAL;
         }
-        if (player.getComponent<TransformComponent>().position.y > e->getComponent<TransformComponent>().position.y) {
+        if (playerOldPos.y > e->getComponent<TransformComponent>().position.y) {
             e->getComponent<TransformComponent>().position.y += 2;
             e->getComponent<SpriteComponent>().play("Walk");
         }
-        if (player.getComponent<TransformComponent>().position.y < e->getComponent<TransformComponent>().position.y) {
+        if (playerOldPos.y < e->getComponent<TransformComponent>().position.y) {
             e->getComponent<TransformComponent>().position.y -= 2;
             e->getComponent<SpriteComponent>().play("Walk");
         }
     }
+    
     if (health > 0) {
-        camera.x = player.getComponent<TransformComponent>().position.x - 400;
-        camera.y = player.getComponent<TransformComponent>().position.y - 320;
+        camera.x = playerOldPos.x - 400;
+        camera.y = playerOldPos.y - 320;
 
         if (camera.x < 0) {
             camera.x = 0;

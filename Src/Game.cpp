@@ -10,10 +10,6 @@
 Map* map;
 Manager manager;
 
-//score and health
-double score = 0;
-int health = 100;
-
 //text colors
 SDL_Color white = { 255,255,255,255 };
 SDL_Color red = { 255,0,0,0 };
@@ -112,11 +108,12 @@ void Game::init(const char* title, int width, int height, bool fullscreen) //
 	
     player.addComponent<ColliderComponent>("player"); // (classifier)
     // ColliderComponent essentially gives the object a "collision box" per its sprite and classifier.
-	
+    
+    player.addComponent<CharacteristicComponent>(); // (score, healthMax, health)
+    
     player.addGroup(groupPlayers); // (enumerator)
     // This is not a component. addGroup assigns the entity (player) to the enumerator group 'groupPlayers' so the manager object may use its 2-dimensional pointer to cycle through all entities classified within its own group.
 
-    
     
 	//make a bunch of enemies that you run away from
 	enemy1.addComponent<TransformComponent>(300, 600, 32, 32, 4);
@@ -224,10 +221,12 @@ void Game::handleEvents() // Literally just handles the event of SDL_QUIT.
 
 void Game::update() {// Updates all entities and interaction among them.
     
-	int tempScore = score;
+    // NOTE : this should all be moved into CharacteristicComponent.h in the update function.
+    
+	int tempScore = player.getComponent<CharacteristicComponent>().getScore();
 
 	//basically ends the game
-	if (health <= 0) {
+	if (player.getComponent<CharacteristicComponent>().getHealth() <= 0) {
         for (auto& e : enemies) {
 			e->destroy();
         }
@@ -251,10 +250,10 @@ void Game::update() {// Updates all entities and interaction among them.
 		std::stringstream sc;
 		sc << "Score : " << tempScore;
 		pScore.getComponent<UILabel>().SetLabelText(sc.str(), "arcade");
-		score += .05;
+		player.getComponent<CharacteristicComponent>().addScore(.06);
 
 		std::stringstream hp;
-		hp << "Health : " << health;
+		hp << "Health : " << player.getComponent<CharacteristicComponent>().getHealth();
 		pHealth.getComponent<UILabel>().SetLabelText(hp.str(), "arcade");
 	}
     
@@ -297,7 +296,7 @@ void Game::update() {// Updates all entities and interaction among them.
             player.getComponent<TransformComponent>().velocity = player.getComponent<TransformComponent>().velocity * -1;
             player.getComponent<KeyboardController>().stun = 3;
             e->destroy();
-            health -= 30;
+            player.getComponent<CharacteristicComponent>().addHealth(-30);
         }
     for (auto& contact : enemies) {
         if (Collision::AABB(e->getComponent<ColliderComponent>().collider, contact->getComponent<ColliderComponent>().collider)) {
@@ -330,7 +329,7 @@ void Game::update() {// Updates all entities and interaction among them.
         }
     }
     
-    if (health > 0) {
+    if (player.getComponent<CharacteristicComponent>().getHealth() > 0) {
         camera.x = player.getComponent<TransformComponent>().position.x - 400;
         camera.y = player.getComponent<TransformComponent>().position.y - 320;
 
@@ -356,7 +355,7 @@ void Game::render()
 	for (auto& t : tiles) {
 		t->draw();
 	}
-	if (health > 0) { // Only draw player if still alive. This is a temporary work-around to the fact that the player is our only source of keyboard input as of now.
+	if (player.getComponent<CharacteristicComponent>().getHealth() > 0) { // Only draw player if still alive. This is a temporary work-around to the fact that the player is our only source of keyboard input as of now.
 		for (auto& p : players) {
 			p->draw();
 		}
@@ -364,7 +363,7 @@ void Game::render()
 	for (auto& e : enemies) {
 		e->draw();
 	}
-	if (health > 0) {
+	if (player.getComponent<CharacteristicComponent>().getHealth() > 0) {
 		pScore.draw();
 		pHealth.draw();
 	}
